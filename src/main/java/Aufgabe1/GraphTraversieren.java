@@ -5,11 +5,12 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class GraphTraversieren {
-    public static HashSet<Node> traverseGraph(Graph graph, String startNode) {
+/*    public static HashSet<Node> traverseGraph(Graph graph, String startNode) {
         Node node = graph.getNode(startNode);
         if (node == null) {
             throw new IllegalArgumentException("Node not found");
@@ -29,7 +30,7 @@ public class GraphTraversieren {
             }
         }
         return visited;
-    }
+    }*/
 
     public static Pair<List<Node>, Integer> shortestPath(Graph graph, String startNodeId, String endNodeId) {
         Preconditions.checkNotNull(endNodeId);
@@ -68,14 +69,5 @@ public class GraphTraversieren {
             currentNode = predecessors.get(currentNode);
         }
         return new Pair<>(path, distances.get(endNode));
-    }
-
-    public static void main(String[] args) {
-        Graph graph = GraphLesen.readGraph("C:\\Users\\Usman\\Documents\\Java Files\\GraphPraktikum\\branchAndre\\src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph04.gka");
-        Pair<List<Node>, Integer> pair = shortestPath(graph, "v2", "v7");
-        System.setProperty("org.graphstream.ui", "swing");
-        graph.display();
-        System.out.println(pair.second);
-        System.out.println(pair.first);
     }
 }

@@ -1,8 +1,10 @@
 package Aufgabe1;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,10 @@ public class GraphLesen {
      * Die Methode liest eine Graph-Datei und erzeugt aus der Datei ein Graph-Objekt.
      */
 
-    public static Graph readGraph(String fileName) {
+    public static Graph readGraph(String fileName) throws FileNotFoundException {
+        if (Files.exists(java.nio.file.Path.of(fileName)) == false) {
+            throw new FileNotFoundException("File not found");
+        }
         Pattern directionPattern = Pattern.compile("\\s*(?<nameNode1>\\w+)\\s*((?<direction>->|--)\\s*(?<nameNode2>\\w+)\\s*(?<edgeName>\\(\\w+\\))?\\s*(:\\s*(?<edgeGewicht>\\d+))?)?\\s*;");
         Graph graph = new MultiGraph(fileName);
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -89,15 +94,5 @@ public class GraphLesen {
             return graph;
 
 
-        }
-
-
-        public static void main (String[]args) throws IOException {
-            //"C:\\Users\\Usman\\Documents\\Java Files\\GraphPraktikum\\src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka"
-            //Graph graph= GraphLesen.readGraph("C:\\Users\\Usman\\Documents\\Java Files\\GraphPraktikum\\src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph10.gka");
-            Graph graph2Andre = GraphLesen.readGraph("C:\\Users\\andre\\Desktop\\GraphPraktikum\\src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka");
-            System.setProperty("org.graphstream.ui", "swing");
-            graph2Andre.display();
-            //graph.display();
         }
 }
