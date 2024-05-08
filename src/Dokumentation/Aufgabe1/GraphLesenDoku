@@ -1,0 +1,20 @@
+AUTOR:: Usman Amini, André Demir
+Datum:: 18.04.2024
+_____________________________________________________________________________________________________
+Klasse GraphLesen:
+die Klasse stellt uns eine Methode "ReadGraph" zur Verfügung,mit der wir eine Graphdatei lesen können.
+
+Die Methode ReadGraph:
+die Methode bekommt einen Dateiname als String, liest die Datei und liefert uns ein Objekt von Graph von der Graphstream
+Bibliothek.
+Die Datei  kann beschädigt sein, z.B wenn eine Zeile in der Datei Informationen enthält die nicht dem Format entspricht
+das wir auf dem Praktikumsblatt haben, in diesem Fall wird die Datei nicht weitergelesen und die Methode liefert null.
+Zuerst hatten wir die Klasse Files benutzt um die Datei einzulesen, jedoch dadurch dass Files die Methode ReadAllLines
+verwendet, musste man die ganze Datei extra in einer List<String> liste zwischen speichern. Deswegen haben wir uns
+für BufferReader entscheiden, da BufferReader die Datei Zeile für Zeile einlesen kann, muss man nicht eine Liste von
+Strings erzeugen.
+Wir gehen davon aus, dass die Datei sowohl gerichtete als auch ungerichtete Kanten als auch Schlinge enthalten kann,deswegen ist der
+Graph, der die Methode am Ende liefert, ein Multi-Graph.
+Die Nodes sind eindeutig im Graph, d.h es gibt keine 2 Nodes, die den Selben Namen tragen.
+Die Kanten sind aber nicht eindeutig, d.h es können mehrere Kanten zwischen 2 Nodes geben, die gleich oder auch anders
+heißen können.
