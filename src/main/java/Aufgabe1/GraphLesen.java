@@ -81,7 +81,11 @@ public class GraphLesen {
                 }
             }
             return graph;
-
-
         }
+
+    public static void main(String[] args) throws IOException {
+        System.setProperty("org.graphstream.ui", "swing");
+        Graph graph = readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka");
+        graph.display();
+    }
 }

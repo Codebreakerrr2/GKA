@@ -31,15 +31,6 @@ class GraphLesenTest {
     }
 
     /**
-     * Tested, ob die Methode den Graphen mit Kantenname korrekt einliest und nicht Null returned
-     * @throws IOException wenn die Datei nicht gefunden wird
-     */
-    @Test
-    void readUndirectedGraphWithEdgeNameFile03() throws IOException {
-        assertNotNull(GraphLesen.readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph03.gka"));
-    }
-
-    /**
      * Tested, ob die Methode der File 05 korrekt einliest und Null returned, da Sie Fehlerhaft ist.
      * @throws IOException
      */

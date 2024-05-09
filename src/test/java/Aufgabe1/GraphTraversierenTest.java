@@ -1,11 +1,8 @@
 package Aufgabe1;
 
 import org.graphstream.graph.Graph;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -22,7 +19,7 @@ class GraphTraversierenTest {
     @Test
     void shortestPathFile01DirectedKantenlaenge() throws IOException {
         Graph graph = GraphLesen.readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka");
-        assertEquals(2, GraphTraversieren.shortestPath(graph, "a", "d").second);
+        assertEquals(2, GraphTraversieren.shortestPath(graph, "a", "d").second, "should be equal to 2");
     }
 
     /**
@@ -34,10 +31,9 @@ class GraphTraversierenTest {
     @Test
     void shortestPathFile01DirectedPath() throws IOException {
         String [] array = {"a", "k", "d"};
-        String [] array2 = {"a", "b", "d"};
         Graph graph = GraphLesen.readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka");
-        assertNotNull(graph);
-        assertTrue(Arrays.toString(array).equals(GraphTraversieren.shortestPath(graph, "a", "d").first.toString()) || Arrays.toString(array2).equals(GraphTraversieren.shortestPath(graph, "a", "d").first.toString()), "a should be equal to [a, k, d] or [a, b, d]");
+        System.out.println(GraphTraversieren.shortestPath(graph, "a", "d").first);
+        assertEquals(Arrays.toString(array), GraphTraversieren.shortestPath(graph, "a", "d").first.toString(), "a should be equal to [a, k, d]");
     }
 
     /**
@@ -69,6 +65,6 @@ class GraphTraversierenTest {
     @Test
     void shortestPathFile02UndirectedKantenlaenge() throws IOException {
         Graph graph = GraphLesen.readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph02.gka");
-        assertEquals(2, GraphTraversieren.shortestPath(graph, "a", "h").second);
+        assertEquals(2, GraphTraversieren.shortestPath(graph, "a", "h").second, "should be equal to 2");
     }
 }
