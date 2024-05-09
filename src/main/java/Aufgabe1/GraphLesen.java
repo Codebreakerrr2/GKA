@@ -41,7 +41,6 @@ public class GraphLesen {
             br = new BufferedReader(new FileReader(fileName));
             while ((line = br.readLine()) != null) {
                 Matcher patternMatches = directionPattern.matcher(line);
-
                 if (patternMatches.matches()) {
 
                     String nameNode1 = patternMatches.group("nameNode1");
@@ -52,13 +51,11 @@ public class GraphLesen {
 
                     Node node1 = graph.getNode(nameNode1);
                     if (node1 == null) node1 = graph.addNode(nameNode1);
-                    //node1.setAttribute("ui.label", nameNode1);
                     if (nameNode2 != null) {
                         //gucken ob node2 schon existiert
                         Node node2 = graph.getNode(nameNode2);
                         //falls nicht, erstellen
                         if (node2 == null) node2 = graph.addNode(nameNode2);
-                       // node2.setAttribute("ui.label", nameNode2);
                         if (direction.equals("->")) {
                             if (edgeName == null) edgeName = nameNode1 + nameNode2;
                             graph.addEdge(edgeName, node1, node2, true);
@@ -69,23 +66,22 @@ public class GraphLesen {
                     }
                     if (edgeGewicht != null) {
                         graph.getEdge(edgeName).setAttribute("Gewicht", Double.parseDouble(edgeGewicht));
-                        //    //zeigt die Gewichtung der Kanten an
-                        //    graph.getEdge(edgeName).setAttribute("ui.label",Double.parseDouble(edgeGewicht));
-                        //    //gibt den Kantennamen style
-                        //    graph.setAttribute("ui.stylesheet",
-                        //            "node { text-alignment: above; text-size: 14; text-color: red; text-mode: normal; text-background-mode: rounded-box; text-background-color: white; text-style: bold; text-offset: 5px, 0px; }");
-                        //    //nicht nötig aber verbessert die Anzeigequalität
-                        //    graph.setAttribute("ui.quality");
-                        //    graph.setAttribute("ui.antialias");
+                        graph.getEdge(edgeName).setAttribute("ui.label",edgeName +" (" + edgeGewicht + ")");
+                    }   else {
+                        graph.nodes().forEach((Node node) -> {
+                            node.setAttribute("Name", node.getId());
+                            node.setAttribute("ui.label", "Nodename: " + node.getAttribute("Name"));
+                        });
                     }
                 }
             }
+            graph.setAttribute("ui.stylesheet", "node { text-mode: normal; text-color: red;}");
             return graph;
         }
 
-    public static void main(String[] args) throws IOException {
+/*  public static void main(String[] args) throws IOException {
         System.setProperty("org.graphstream.ui", "swing");
-        Graph graph = readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka");
+        Graph graph = readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph04.gka");
         graph.display();
-    }
+    }*/
 }

@@ -32,7 +32,6 @@ class GraphTraversierenTest {
     void shortestPathFile01DirectedPath() throws IOException {
         String [] array = {"a", "k", "d"};
         Graph graph = GraphLesen.readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka");
-        System.out.println(GraphTraversieren.shortestPath(graph, "a", "d").first);
         assertEquals(Arrays.toString(array), GraphTraversieren.shortestPath(graph, "a", "d").first.toString(), "a should be equal to [a, k, d]");
     }
 
