@@ -13,11 +13,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public class GraphSpeichern {
-    /**
-     * @param graph
-     * @author Usman Amini, Andre Demir.
-     * Die Methode speichert einen Graphen in einer Datei.
-     */
   /*  public static void saveGraphToFile(Graph graph, String filePath) {
         try (FileWriter writer = new FileWriter(filePath)) {
             for (Edge edge : graph.edges().toList()) {
@@ -109,7 +104,14 @@ public class GraphSpeichern {
             e.printStackTrace();
         }
     }*/
-    public static void saveGraphToFile4(Graph graph, String filePath) {
+
+    /**
+     * @param graph
+     * @author Usman Amini, Andre Demir.
+     * Die Methode speichert einen Graphen in einer Datei.
+     */
+
+    public static void saveGraphToFile(Graph graph, String filePath) {
         try (FileWriter writer = new FileWriter(filePath)) {
         graph.nodes().forEach((Node node)->{
             if(node.getDegree()==0){
@@ -164,8 +166,4 @@ public class GraphSpeichern {
         }
 }
 
-    public static void main(String[] args) throws FileNotFoundException {
-        Graph graph = GraphLesen.readGraph("C:\\Users\\Usman\\Documents\\Java Files\\GraphPraktikum\\branchAndre\\src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka");
-        saveGraphToFile4(graph, "C:\\Users\\Usman\\Documents\\Java Files\\GraphPraktikum\\branchAndre\\src\\main\\java\\Aufgabe1\\graphDateien\\graph22.txt");
-    }
 }

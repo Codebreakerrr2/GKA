@@ -23,26 +23,22 @@ public class GraphLesen {
      * Die Methode liest eine Graph-Datei und erzeugt aus der Datei ein Graph-Objekt.
      */
 
-    public static Graph readGraph(String fileName) throws FileNotFoundException {
-        if (Files.exists(java.nio.file.Path.of(fileName)) == false) {
-            throw new FileNotFoundException("File not found");
+    public static Graph readGraph(String fileName) throws IOException {
+        if (!Files.exists(java.nio.file.Path.of(fileName))) {
+            throw new IOException("File not found");
         }
         Pattern directionPattern = Pattern.compile("\\s*(?<nameNode1>\\w+)\\s*((?<direction>->|--)\\s*(?<nameNode2>\\w+)\\s*(?<edgeName>\\(\\w+\\))?\\s*(:\\s*(?<edgeGewicht>\\d+))?)?\\s*;");
         Graph graph = new MultiGraph(fileName);
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-            String line;
+        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        String line;
 
-            while ((line = br.readLine()) != null) {
-                Matcher patternMatches = directionPattern.matcher(line);
+        while ((line = br.readLine()) != null) {
+            Matcher patternMatches = directionPattern.matcher(line);
 
                 if (!(patternMatches.matches())) return null;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-            String line;
+            br = new BufferedReader(new FileReader(fileName));
             while ((line = br.readLine()) != null) {
                 Matcher patternMatches = directionPattern.matcher(line);
 
@@ -73,23 +69,16 @@ public class GraphLesen {
                     }
                     if (edgeGewicht != null) {
                         graph.getEdge(edgeName).setAttribute("Gewicht", Double.parseDouble(edgeGewicht));
-//                            //zeigt die Gewichtung der Kanten an
-//                            graph.getEdge(edgeName).setAttribute("ui.label",Double.parseDouble(edgeGewicht));
-//                            //gibt den Kantennamen style
-//                            graph.setAttribute("ui.stylesheet",
-//                                    "node { text-alignment: above; text-size: 14; text-color: red; text-mode: normal; text-background-mode: rounded-box; text-background-color: white; text-style: bold; text-offset: 5px, 0px; }");
-//                            //nicht nötig aber verbessert die Anzeigequalität
-//                            graph.setAttribute("ui.quality");
-//                            graph.setAttribute("ui.antialias");
-//                        }
-
+                        //    //zeigt die Gewichtung der Kanten an
+                        //    graph.getEdge(edgeName).setAttribute("ui.label",Double.parseDouble(edgeGewicht));
+                        //    //gibt den Kantennamen style
+                        //    graph.setAttribute("ui.stylesheet",
+                        //            "node { text-alignment: above; text-size: 14; text-color: red; text-mode: normal; text-background-mode: rounded-box; text-background-color: white; text-style: bold; text-offset: 5px, 0px; }");
+                        //    //nicht nötig aber verbessert die Anzeigequalität
+                        //    graph.setAttribute("ui.quality");
+                        //    graph.setAttribute("ui.antialias");
                     }
                 }
-            }
-
-            }
-         catch(IOException e){
-                e.printStackTrace();
             }
             return graph;
 
