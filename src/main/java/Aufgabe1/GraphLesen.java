@@ -52,6 +52,7 @@ public class GraphLesen {
 
                     Node node1 = graph.getNode(nameNode1);
                     if (node1 == null) node1 = graph.addNode(nameNode1);
+                    //kann ja sein, dass es nur ein Knoten ohne Kante ist
                     if (nameNode2 != null) {
                         //gucken ob node2 schon existiert
                         Node node2 = graph.getNode(nameNode2);
