@@ -70,12 +70,54 @@ public class GraphTraversieren {
         return new Pair<>(path, distances.get(endNode));
     }
 
+    public static Pair<HashMap<Node,Double>,HashMap<Node,Node>> dijakstra(Graph graph, String start){
+        HashMap<Node,Double> ent= new HashMap<>();
+        HashMap<Node,Node> vor=new HashMap<>();
+        Set<Node> visited= new HashSet<>();
+        Queue<Node> toVisit= new LinkedList<>();
+        Node nodeStart=graph.getNode(start);
+        ent.put(nodeStart,0.0);
+        vor.put(nodeStart,nodeStart);
+        toVisit.add(nodeStart);
+        while(!toVisit.isEmpty()){
+            Node currentNode= toVisit.poll();
+            visited.add(currentNode);
+            currentNode.leavingEdges().forEach((Edge edge)->{
+                Node targetNode= edge.getTargetNode();
+                if(!visited.contains(targetNode)) {
+                    toVisit.add(targetNode);
+                    double currentNodeEnt=ent.get(currentNode);
+                    double weight = (double) edge.getAttribute("Gewicht");
+                    if(!ent.containsKey(targetNode)){
+                        ent.put(targetNode,currentNodeEnt+weight);
+                        vor.put(currentNode,targetNode);
+
+                    }
+                    else{
+                        double targetNodeEnt=ent.get(targetNode);
+                            if(targetNodeEnt>currentNodeEnt+weight){
+                                ent.put(targetNode,currentNodeEnt+weight);
+                                vor.put(currentNode,targetNode);
+                            }
+
+                    }
+
+
+                }
+
+            });
+
+        }
+            return new Pair<>(ent,vor);
+        }
+
+
     public static void main(String[] args) {
-        Graph graph = GraphLesen.readGraph("C:\\Users\\Usman\\Documents\\Java Files\\GraphPraktikum\\branchAndre\\src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph04.gka");
-        Pair<List<Node>, Integer> pair = shortestPath(graph, "v2", "v7");
-        System.setProperty("org.graphstream.ui", "swing");
-        graph.display();
-        System.out.println(pair.second);
+        Graph graph = GraphLesen.readGraph("C:\\Users\\Usman\\Documents\\Java Files\\GKA\\src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph04.gka");
+//        Pair<List<Node>, Integer> pair = shortestPath(graph, "v2", "v7");
+     ;
+        Pair<HashMap<Node, Double>, HashMap<Node, Node>> pair=dijakstra(graph,"q");
         System.out.println(pair.first);
+        System.out.println(pair.second);
     }
 }
