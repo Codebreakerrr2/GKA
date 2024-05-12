@@ -16,6 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GraphSpeichernTest {
 
+    /**
+     * Tested, ob die Datei mit einem gerichteten Graph erstellt wird
+     * @throws IOException
+     */
     @Test
     void saveGraphToFileTestDirected() throws IOException {
         Graph graph = GraphLesen.readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph01.gka");
@@ -23,6 +27,10 @@ class GraphSpeichernTest {
         assertTrue(Files.exists(Path.of("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\neueGraphDatei.gka")));
     }
 
+    /**
+     * Tested, ob die Datei mit einem ungerichteten Graph erstellt wird
+     * @throws IOException
+     */
     @Test
     void saveGraphToFileTestUnirected() throws IOException {
         Graph graph = GraphLesen.readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph02.gka");
@@ -30,6 +38,10 @@ class GraphSpeichernTest {
         assertTrue(Files.exists(Path.of("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\neueGraphDatei.gka")));
     }
 
+    /**
+     * Verzeichnis existiert nicht
+     * @throws IOException
+     */
     @Test
     void saveGraphToFileTestUnirectedException() throws IOException {
         Graph graph = GraphLesen.readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph02.gka");

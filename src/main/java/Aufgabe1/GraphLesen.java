@@ -1,10 +1,9 @@
 package Aufgabe1;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.AbstractList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,12 +26,13 @@ public class GraphLesen {
         if (!Files.exists(java.nio.file.Path.of(fileName))) {
             throw new IOException("File not found");
         }
+        //Pattern directionPattern = Pattern.compile("\\s*(?<nameNode1>[\\wäöüÄÖÜ]+)\\s*((?<direction>->|--)\\s*(?<nameNode2>[\\wäöüÄÖÜ]+)\\s*(?<edgeName>\\(\\w+\\))?\\s*(:\\s*(?<edgeGewicht>\\d+))?)?\\s*;");
         Pattern directionPattern = Pattern.compile("\\s*(?<nameNode1>\\w+)\\s*((?<direction>->|--)\\s*(?<nameNode2>\\w+)\\s*(?<edgeName>\\(\\w+\\))?\\s*(:\\s*(?<edgeGewicht>\\d+))?)?\\s*;");
         Graph graph = new MultiGraph(fileName);
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8));
         String line;
 
-        while ((line = br.readLine()) != null) {
+        while ((line = br.readLine()) != null && !line.isBlank()) {
             Matcher patternMatches = directionPattern.matcher(line);
 
                 if (!(patternMatches.matches())) return null;
@@ -46,6 +46,7 @@ public class GraphLesen {
                     String nameNode1 = patternMatches.group("nameNode1");
                     String nameNode2 = patternMatches.group("nameNode2");
                     String edgeName = patternMatches.group("edgeName");
+                    //kein denglisch
                     String edgeGewicht = patternMatches.group("edgeGewicht");
                     String direction = patternMatches.group("direction");
 
@@ -57,11 +58,18 @@ public class GraphLesen {
                         //falls nicht, erstellen
                         if (node2 == null) node2 = graph.addNode(nameNode2);
                         if (direction.equals("->")) {
-                            if (edgeName == null) edgeName = nameNode1 + nameNode2;
-                            graph.addEdge(edgeName, node1, node2, true);
+                            if (edgeName == null) edgeName = nameNode1 + '-' + nameNode2;
+
+                           if(graph.getEdge(edgeName)==null){
+                               graph.addEdge(edgeName, node1, node2, true);
+                           }
                         } else if (direction.equals("--")) {
-                            if (edgeName == null) edgeName = nameNode1 + nameNode2;
-                            graph.addEdge(edgeName, node1, node2, false);
+                            if (edgeName == null){
+                                edgeName = nameNode1 + nameNode2;
+                            }
+                            if(graph.getEdge(edgeName)==null){
+                                graph.addEdge(edgeName, node1, node2, false);
+                            }
                         }
                     }
                     if (edgeGewicht != null) {
@@ -75,13 +83,13 @@ public class GraphLesen {
                     }
                 }
             }
-            graph.setAttribute("ui.stylesheet", "node { text-mode: normal; text-color: red;}");
+            graph.setAttribute("ui.stylesheet", "edge { text-mode: normal; text-color: red;}");
             return graph;
         }
 
-/*  public static void main(String[] args) throws IOException {
+public static void main(String[] args) throws IOException {
         System.setProperty("org.graphstream.ui", "swing");
         Graph graph = readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph04.gka");
         graph.display();
-    }*/
+    }
 }
