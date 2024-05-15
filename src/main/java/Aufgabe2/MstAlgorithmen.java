@@ -60,14 +60,14 @@ public class MstAlgorithmen {
     private static void union(String root1, String root2, Map<String, String> parent) {
         parent.put(root1, root2);
     }
-/*
+
     public static void main(String[] args) throws IOException {
-      generateUndirectedWeightesGraphs(4, 8, 10, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
+      generateUndirectedWeightesGraphs(10, 45, 10, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
         Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/newGraph");
         Graph mst = kruskal(graph);
         System.setProperty("org.graphstream.ui", "swing");
-        mst.display();
         graph.display();
+        //graph.display();
     }
-*/
+
 }

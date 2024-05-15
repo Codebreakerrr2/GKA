@@ -12,11 +12,22 @@ public class GraphGenerator {
         if (nodeNumber < 0 || edgeNumber < 0 || weightRange < 0) {
             throw new IllegalArgumentException("Invalid input");
         }
+        if (edgeNumber > nodeNumber * (nodeNumber - 1) / 2) {
+            throw new IllegalArgumentException("Too many edges for the given number of nodes");
+        }
         Set<String> edges = new HashSet<>();
         FileWriter fileWriter = new FileWriter(path);
-        while (edges.size() < edgeNumber) {
-            int node1 = (int) (Math.random() * nodeNumber);
-            int node2 = (int) (Math.random() * nodeNumber);
+
+        // Create all nodes first and add them to the file
+        List<Integer> nodes = new ArrayList<>();
+        for (int i = 0; i < nodeNumber; i++) {
+            nodes.add(i);
+            fileWriter.append(i + ";\n");
+        }
+
+        while (edges.size() < edgeNumber && nodes.size() > 1) {
+            int node1 = nodes.get((int) (Math.random() * nodes.size()));
+            int node2 = nodes.get((int) (Math.random() * nodes.size()));
             if (node1 == node2) continue; // Skip self-loops
             String edge = node1 + " -- " + node2;
             String reverseEdge = node2 + " -- " + node1;
@@ -26,6 +37,7 @@ public class GraphGenerator {
                 fileWriter.append(edge + " : " + weight + ";\n");
             }
         }
+
         fileWriter.close();
     }
 

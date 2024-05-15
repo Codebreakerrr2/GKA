@@ -90,7 +90,7 @@ public class GraphLesen {
 
 public static void main(String[] args) throws IOException {
         System.setProperty("org.graphstream.ui", "swing");
-        Graph graph = readGraph("src\\main\\java\\Aufgabe1\\Dateien_1_gka\\graph04.gka");
+        Graph graph = readGraph("src/main/java/Aufgabe2/generatedGraphs/newGraph4_6");
         graph.display();
     }
 }
