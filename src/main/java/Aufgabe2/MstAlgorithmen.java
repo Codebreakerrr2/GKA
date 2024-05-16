@@ -67,33 +67,25 @@ public class MstAlgorithmen {
 
             // Add the edge to the MST
             mst.addEdge(e.getId(), node1.getId(), node2.getId());
+
+            //style stuff
             mst.getEdge(e.getId()).setAttribute("Gewicht");
             mst.getEdge(e.getId()).setAttribute("ui.label",e.getId() +" (" + e.getAttribute("Gewicht") + ")");
 
             // Mark the nodes as visited
             visited.put(node1.getId(), true);
             visited.put(node2.getId(), true);
-           //// Add all edges of the nodes to the priority queue if the nodes haven't been visited yet
-           //if (!isNode1Visited) {
-           //    for (Edge e1: node1.edges().toList()) {
-           //        if (!visited.containsKey(e1.getId())){
-           //            if (pqEdges.contains(e1))pqEdges.add(e);
-           //        }
-           //    }
-           //}
-           //if (!isNode2Visited) {
-           //    for (Edge e2: node2.edges().toList()) {
-           //        if (!visited.containsKey(e2.getId())){
-           //            if (!pqEdges.contains(e2))pqEdges.add(e2);
-           //        }
-           //    }
-           //}
-            pqEdges.clear();
-            for (Edge e2: node2.edges().toList()) {
-                if (!visited.containsKey(e2.getId())){
-                    pqEdges.add(e2);
-                }
-            }
+           //Add all edges of the nodes to the priority queue if the nodes haven't been visited yet
+           if (!isNode1Visited) {
+               for (Edge e1: node1.edges().toList()) {
+                   if (!pqEdges.contains(e1))pqEdges.add(e1);
+               }
+           }
+           if (visited.get(node2.getId())) {
+               for (Edge e2: node2.edges().toList()) {
+                   if (!pqEdges.contains(e2))pqEdges.add(e2);
+               }
+           }
         }
         mst.nodes().forEach((Node node) -> {
             node.setAttribute("Name", node.getId());
@@ -162,9 +154,9 @@ public class MstAlgorithmen {
     }
 
     public static void main(String[] args) throws IOException {
-        //generateUndirectedWeightesGraphs(5, 10, 10, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
+        //generateUndirectedWeightesGraphs(5, 9, 10, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
         Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/newGraph");
-        Graph mst = prim(graph);
+        Graph mst = kruskal(graph);
         System.setProperty("org.graphstream.ui", "swing");
         mst.display();
         //graph.display();
