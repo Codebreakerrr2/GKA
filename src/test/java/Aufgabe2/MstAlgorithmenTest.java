@@ -156,7 +156,7 @@ public class MstAlgorithmenTest {
         assertEquals(2, mst.first.getEdgeCount());
     }
     @Test
-    void primTestGraphWithFourNodesAndFourEdgesReturnsGraphWithThreeEdges() throws IOException {
+    void primTestGraphWith20NodesAnd190EdgesShouldReturn19EdgesForMST() throws IOException {
         Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/newGraph");
         Pair<Graph, Integer> mst = MstAlgorithmen.prim(graph);
         assertEquals(19, mst.first.getEdgeCount());
