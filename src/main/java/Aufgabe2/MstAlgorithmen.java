@@ -33,9 +33,9 @@ public class MstAlgorithmen {
 
         // Start with the first node of the graph
         Iterator<Node> nodeIterator = graph.nodes().iterator();
-        if (!nodeIterator.hasNext()) {
-            throw new IllegalArgumentException("Graph has no nodes");
-        }
+        //if (!nodeIterator.hasNext()) {
+        //    throw new IllegalArgumentException("Graph has no nodes");
+        //}
 
         Node firstNode = nodeIterator.next();
         visited.put(firstNode.getId(), true);
@@ -84,7 +84,7 @@ public class MstAlgorithmen {
                    if (!pqEdges.contains(e1))pqEdges.add(e1);
                }
            }
-           if (visited.get(node2.getId())) {
+           if (!isNode2Visited) {
                for (Edge e2: node2.edges().toList()) {
                    if (!pqEdges.contains(e2))pqEdges.add(e2);
                }
@@ -175,7 +175,7 @@ public class MstAlgorithmen {
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph1.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph2.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph3.gka");
-        generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
+        //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
         Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/newGraph");
         System.out.println("Kruskal; " + kruskal(graph).second);
         System.out.println("Prim; " + prim(graph).second);
