@@ -13,7 +13,7 @@ public class GraphGenerator {
             throw new IllegalArgumentException("Invalid input");
         }
         if (edgeNumber > nodeNumber * (nodeNumber - 1) / 2) {
-            throw new IllegalArgumentException("Too many edges for the given number of nodes");
+            throw new IllegalArgumentException("Too many edges for the given number of nodes, maximum number of edges is " + nodeNumber * (nodeNumber - 1) / 2);
         }
         Set<String> edges = new HashSet<>();
         FileWriter fileWriter = new FileWriter(path);

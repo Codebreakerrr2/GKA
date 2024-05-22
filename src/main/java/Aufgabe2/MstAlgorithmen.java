@@ -1,6 +1,7 @@
 package Aufgabe2;
 
 import Aufgabe1.GraphLesen;
+import Aufgabe1.Pair;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -8,6 +9,8 @@ import org.graphstream.graph.implementations.MultiGraph;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static Aufgabe2.GraphGenerator.generateUndirectedWeightesGraphs;
 
@@ -20,7 +23,7 @@ public class MstAlgorithmen {
      * @param graph The graph to find the minimum spanning tree of
      * @return The minimum spanning tree of the graph
      */
-    public static Graph prim(Graph graph) {
+    public static Pair<Graph, Integer> prim(Graph graph) {
         if (graph == null || graph.getNodeCount() == 0) {
             throw new IllegalArgumentException("Graph is null or empty");
         }
@@ -92,7 +95,21 @@ public class MstAlgorithmen {
             node.setAttribute("ui.label", "Nodename: " + node.getAttribute("Name"));
         });
         mst.setAttribute("ui.stylesheet", "edge { text-mode: normal; text-color: red;}");
-        return mst;
+        Integer weight = getWeight(mst);
+        return new Pair<>(mst, weight);
+    }
+
+    public static int getWeight(Graph graph) {
+        int weight = 0;
+        for (Edge e: graph.edges().toList()) {
+            Pattern pattern = Pattern.compile("\\((\\d+(\\.\\d+)?)\\)");
+            Matcher matcher = pattern.matcher(e.getAttribute("ui.label").toString());
+            if (matcher.find()) {
+                weight += (int) Double.parseDouble(matcher.group(1));
+                // Jetzt können Sie das Gewicht verwenden
+            }
+        }
+        return weight;
     }
 
     /**
@@ -101,7 +118,7 @@ public class MstAlgorithmen {
      * @return The minimum spanning tree of the graph
      */
 
-    public static Graph kruskal(Graph graph){
+    public static Pair<Graph, Integer> kruskal(Graph graph){
         if (graph == null) throw new IllegalArgumentException("Graph is null");
         Graph mst = new MultiGraph("MSTK");
         PriorityQueue<Edge> pqEdges = new PriorityQueue<>((Comparator.comparingDouble(edge -> (double) edge.getAttribute("Gewicht"))));
@@ -138,7 +155,8 @@ public class MstAlgorithmen {
             node.setAttribute("Name", node.getId());
             node.setAttribute("ui.label", "Nodename: " + node.getAttribute("Name"));
         });
-        return mst;
+        Integer weight = getWeight(mst);
+        return new Pair<>(mst, weight);
     }
 
     // Find the root of the tree that the node belongs to
@@ -154,11 +172,15 @@ public class MstAlgorithmen {
     }
 
     public static void main(String[] args) throws IOException {
-        //generateUndirectedWeightesGraphs(5, 9, 10, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
+        //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph1.gka");
+        //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph2.gka");
+        //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph3.gka");
+        generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
         Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/newGraph");
-        Graph mst = kruskal(graph);
+        System.out.println("Kruskal; " + kruskal(graph).second);
+        System.out.println("Prim; " + prim(graph).second);
         System.setProperty("org.graphstream.ui", "swing");
-        mst.display();
+        graph.display();
         //graph.display();
     }
 
