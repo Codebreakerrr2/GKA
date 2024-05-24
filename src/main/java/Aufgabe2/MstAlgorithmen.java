@@ -172,16 +172,33 @@ public class MstAlgorithmen {
     }
 
     public static void main(String[] args) throws IOException {
+
+        long startTime = System.nanoTime();
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph1.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph2.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph3.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
-        Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/newGraph");
-        System.out.println("Kruskal; " + kruskal(graph).second);
-        System.out.println("Prim; " + prim(graph).second);
-        System.setProperty("org.graphstream.ui", "swing");
-        graph.display();
+        generateUndirectedWeightesGraphs(500, 124750, 30, "src/main/java/Aufgabe2/generatedGraphs/graphForMain");
+        Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/graphForMain");
+        Graph mst = kruskal(graph).first;
+        //System.out.println("Kruskal; " + kruskal(graph).second);
+        //System.out.println("Prim; " + prim(graph).second);
+        //System.setProperty("org.graphstream.ui", "swing");
+        //mst.display();
         //graph.display();
+        // Algorithmen nach Dauer sortiert
+        //System.out.println(Arrays.toString(sortingAlgorithmen.bubbleSort(array)));
+        //System.out.println(Arrays.toString(sortingAlgorithmen.selectionSort(array)));
+        //System.out.println(Arrays.toString(sortingAlgorithmen.insertionSort(array)));
+        //System.out.println(Arrays.toString(sortingAlgorithmen.heapSort(array))); // HeapSort performt in Worst Case besser
+        //System.out.println(Arrays.toString(sortingAlgorithmen.mergeSort(array)));
+        //System.out.println(Arrays.toString(sortingAlgorithmen.quickSort(array)));
+        //System.out.println(Arrays.toString(sortingAlgorithmen.radixSort(array)));
+
+        long endTime = System.nanoTime();
+        double duration = (double) (endTime - startTime) / 1_000_000_000;  // convert to milliseconds
+
+        System.out.println("Execution time: " + duration + " s");
     }
 
 }
