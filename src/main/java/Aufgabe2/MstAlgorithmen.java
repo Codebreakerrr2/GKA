@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static Aufgabe2.GraphGenerator.generateUndirectedWeightesGraphs;
+import static Aufgabe2.GraphGenerator.generateUndirectedWeightedGraph;
 
 /**
  * Class to implement Prim's and Kruskal's algorithms to find the minimum spanning tree of a graph
@@ -33,9 +33,6 @@ public class MstAlgorithmen {
 
         // Start with the first node of the graph
         Iterator<Node> nodeIterator = graph.nodes().iterator();
-        //if (!nodeIterator.hasNext()) {
-        //    throw new IllegalArgumentException("Graph has no nodes");
-        //}
 
         Node firstNode = nodeIterator.next();
         visited.put(firstNode.getId(), true);
@@ -99,6 +96,11 @@ public class MstAlgorithmen {
         return new Pair<>(mst, weight);
     }
 
+    /**
+     * Get the weight of a graph
+     * @param graph The graph to get the weight of
+     * @return The weight of the graph
+     */
     public static int getWeight(Graph graph) {
         int weight = 0;
         for (Edge e: graph.edges().toList()) {
@@ -106,7 +108,6 @@ public class MstAlgorithmen {
             Matcher matcher = pattern.matcher(e.getAttribute("ui.label").toString());
             if (matcher.find()) {
                 weight += (int) Double.parseDouble(matcher.group(1));
-                // Jetzt können Sie das Gewicht verwenden
             }
         }
         return weight;
@@ -125,13 +126,15 @@ public class MstAlgorithmen {
         graph.edges().forEach(pqEdges::add);
 
         // Create a map to track the parent of each node
+        // Initially, each node is its own parent
+        // beacause each node is a tree
         Map<String, String> parent = new HashMap<>();
         for (Node node : graph) {
             parent.put(node.getId(), node.getId());
         }
-
         while (!pqEdges.isEmpty()) {
             Edge e = pqEdges.poll();
+            // Find the root of the trees that the two end nodes of the edge belong to
             String root1 = find(e.getNode0().getId(), parent);
             String root2 = find(e.getNode1().getId(), parent);
 
@@ -141,12 +144,16 @@ public class MstAlgorithmen {
                 if (mst.getNode(e.getNode0().getId()) == null) {
                     mst.addNode(e.getNode0().getId());
                 }
+                // Ensure nodes exist in the graph before adding the edge
                 if (mst.getNode(e.getNode1().getId()) == null) {
                     mst.addNode(e.getNode1().getId());
                 }
+                // Add the edge to the MST
                 mst.addEdge(e.getId(), e.getNode0().getId(), e.getNode1().getId());
+                //style stuff
                 mst.getEdge(e.getId()).setAttribute("Gewicht");
                 mst.getEdge(e.getId()).setAttribute("ui.label",e.getId() +" (" + e.getAttribute("Gewicht") + ")");
+                // Merge the two trees into one and make root2 the parent of root1
                 union(root1, root2, parent);
             }
         }
@@ -172,20 +179,18 @@ public class MstAlgorithmen {
     }
 
     public static void main(String[] args) throws IOException {
-
-        long startTime = System.nanoTime();
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph1.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph2.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph3.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
-        generateUndirectedWeightesGraphs(500, 124750, 30, "src/main/java/Aufgabe2/generatedGraphs/graphForMain");
+        generateUndirectedWeightedGraph(163000, 163000, 30, "src/main/java/Aufgabe2/generatedGraphs/graphForMain");
+        //generateUndirectedWeightesGraphs(5, 10, 30, "src/main/java/Aufgabe2/generatedGraphs/graphForMain2");
         Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/graphForMain");
+        //int weight = kruskal(graph).second;
+        long startTime = System.nanoTime();
         Graph mst = kruskal(graph).first;
         //System.out.println("Kruskal; " + kruskal(graph).second);
         //System.out.println("Prim; " + prim(graph).second);
-        //System.setProperty("org.graphstream.ui", "swing");
-        //mst.display();
-        //graph.display();
         // Algorithmen nach Dauer sortiert
         //System.out.println(Arrays.toString(sortingAlgorithmen.bubbleSort(array)));
         //System.out.println(Arrays.toString(sortingAlgorithmen.selectionSort(array)));
@@ -196,9 +201,11 @@ public class MstAlgorithmen {
         //System.out.println(Arrays.toString(sortingAlgorithmen.radixSort(array)));
 
         long endTime = System.nanoTime();
-        double duration = (double) (endTime - startTime) / 1_000_000_000;  // convert to milliseconds
-
+        double duration = (double) (endTime - startTime) / 1_000_000_000;  // convert to seconds
+        //System.out.println(weight);
         System.out.println("Execution time: " + duration + " s");
+        //System.setProperty("org.graphstream.ui", "swing");
+        //graph.display();
     }
 
 }

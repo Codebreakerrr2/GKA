@@ -8,12 +8,23 @@ import java.util.List;
 import java.util.Set;
 
 public class GraphGenerator {
-    public static void generateUndirectedWeightesGraphs(int nodeNumber, int edgeNumber, int weightRange, String path) throws IOException {
+    /**
+     * Generates a random undirected graph with the given number of nodes and edges and writes it to the given file.
+     * @param nodeNumber Number of nodes
+     * @param edgeNumber Number of edges
+     * @param weightRange Maximum weight of an edge
+     * @param path Path to the file
+     * @throws IOException If an I/O error occurs
+     */
+    public static void generateUndirectedWeightedGraph(int nodeNumber, int edgeNumber, int weightRange, String path) throws IOException {
         if (nodeNumber < 0 || edgeNumber < 0 || weightRange < 0) {
             throw new IllegalArgumentException("Invalid input");
         }
         if (edgeNumber > nodeNumber * (nodeNumber - 1) / 2) {
             throw new IllegalArgumentException("Too many edges for the given number of nodes, maximum number of edges is " + nodeNumber * (nodeNumber - 1) / 2);
+        }
+        if (edgeNumber < nodeNumber - 1) {
+            throw new IllegalArgumentException("Not enough edges for the given number of nodes to form a connected graph, minimum number of edges is " + (nodeNumber - 1));
         }
         Set<String> edges = new HashSet<>();
         FileWriter fileWriter = new FileWriter(path);
@@ -25,12 +36,24 @@ public class GraphGenerator {
             fileWriter.append(i + ";\n");
         }
 
-        while (edges.size() < edgeNumber && nodes.size() > 1) {
+        // Create a tree first to ensure the graph is connected
+        for (int i = 1; i < nodeNumber; i++) {
+            int weight = (int) (Math.random() * weightRange);
+            String edge = (i - 1) + " -- " + i;
+            edges.add(edge);
+            fileWriter.append(edge + " : " + weight + ";\n");
+        }
+
+        // Add additional edges
+        while (edges.size() < edgeNumber) {
+            // Randomly select two nodes
             int node1 = nodes.get((int) (Math.random() * nodes.size()));
             int node2 = nodes.get((int) (Math.random() * nodes.size()));
-            if (node1 == node2) continue; // Skip self-loops
+            // Skip self loops
+            if (node1 == node2) continue;
             String edge = node1 + " -- " + node2;
             String reverseEdge = node2 + " -- " + node1;
+            // Skip duplicate edges
             if (!edges.contains(edge) && !edges.contains(reverseEdge)) {
                 int weight = (int) (Math.random() * weightRange);
                 edges.add(edge);
@@ -40,10 +63,4 @@ public class GraphGenerator {
 
         fileWriter.close();
     }
-
-   public static void main(String[] args) throws IOException {
-       //for (int i = 0; i< 10; i++){
-           generateUndirectedWeightesGraphs(5, 10, 10, "src/main/java/Aufgabe2/generatedGraphs/testGraph.gka");
-       //}
-   }
 }
