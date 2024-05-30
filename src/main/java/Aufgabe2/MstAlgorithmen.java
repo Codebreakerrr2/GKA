@@ -169,6 +169,7 @@ public class MstAlgorithmen {
     // Find the root of the tree that the node belongs to
     private static String find(String node, Map<String, String> parent) {
         if (!parent.get(node).equals(node)) {
+            //path compression
             parent.put(node, find(parent.get(node), parent));
         }
         return parent.get(node);
@@ -183,27 +184,48 @@ public class MstAlgorithmen {
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph2.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/testGraph3.gka");
         //generateUndirectedWeightesGraphs(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/newGraph");
-        generateUndirectedWeightedGraph(163000, 163000, 30, "src/main/java/Aufgabe2/generatedGraphs/graphForMain");
-        //generateUndirectedWeightesGraphs(5, 10, 30, "src/main/java/Aufgabe2/generatedGraphs/graphForMain2");
-        Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/graphForMain");
+
+
+        //generateUndirectedWeightedGraph(20, 190, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph1");
+        //generateUndirectedWeightedGraph(40, 780, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph2");
+        //generateUndirectedWeightedGraph(80, 3160, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph3");
+        //generateUndirectedWeightedGraph(160, 12720, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph4");
+        //generateUndirectedWeightedGraph(320, 51040, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph5");
+        // kursal ca 0.8 s und prim ca 1.5 s
+        //generateUndirectedWeightedGraph(640, 204480, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph6");
+        // kursal ca 1.090133901 s s und prim ca 8.1 s
+        //generateUndirectedWeightedGraph(1280, 818560, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph7");
+        // kruskal ca 1.1220631 s bis 1.1635982 s
+        //generateUndirectedWeightedGraph(2560, 818560, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph8");
+        // kruskal ca 21.6123905 bis 23
+        //generateUndirectedWeightedGraph(5120, 13104640, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph9");
+        // Out of memory error
+        //generateUndirectedWeightedGraph(10240, 52423680, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph10");
+        //generateUndirectedWeightedGraph(20480, 209704960, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph11");
+        //generateUndirectedWeightedGraph(25000000, 25000000, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph12");
+
+        Graph graph = GraphLesen.readGraph("src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph7");
         //int weight = kruskal(graph).second;
-        long startTime = System.nanoTime();
+        long startTime1 = System.nanoTime();
+        //generateUndirectedWeightedGraph(40000000, 40000000, 30, "src/main/java/Aufgabe2/generatedGraphs/laufzeitGraph40x40Mio");
         Graph mst = kruskal(graph).first;
         //System.out.println("Kruskal; " + kruskal(graph).second);
         //System.out.println("Prim; " + prim(graph).second);
-        // Algorithmen nach Dauer sortiert
-        //System.out.println(Arrays.toString(sortingAlgorithmen.bubbleSort(array)));
-        //System.out.println(Arrays.toString(sortingAlgorithmen.selectionSort(array)));
-        //System.out.println(Arrays.toString(sortingAlgorithmen.insertionSort(array)));
-        //System.out.println(Arrays.toString(sortingAlgorithmen.heapSort(array))); // HeapSort performt in Worst Case besser
-        //System.out.println(Arrays.toString(sortingAlgorithmen.mergeSort(array)));
-        //System.out.println(Arrays.toString(sortingAlgorithmen.quickSort(array)));
-        //System.out.println(Arrays.toString(sortingAlgorithmen.radixSort(array)));
+        long endTime1 = System.nanoTime();
 
-        long endTime = System.nanoTime();
-        double duration = (double) (endTime - startTime) / 1_000_000_000;  // convert to seconds
+        double duration = (double) (endTime1 - startTime1) / 1_000_000_000;  // convert to seconds
         //System.out.println(weight);
-        System.out.println("Execution time: " + duration + " s");
+        System.out.println("Execution time kruskal: " + duration + " s");
+
+        long startTime2 = System.nanoTime();
+        //mst = prim(graph).first;
+        //System.out.println("Kruskal; " + kruskal(graph).second);
+        //System.out.println("Prim; " + prim(graph).second);
+        long endTime2 = System.nanoTime();
+
+        duration = (double) (endTime2 - startTime2) / 1_000_000_000;  // convert to seconds
+        //System.out.println(weight);
+        System.out.println("Execution time prim: " + duration + " s");
         //System.setProperty("org.graphstream.ui", "swing");
         //graph.display();
     }
