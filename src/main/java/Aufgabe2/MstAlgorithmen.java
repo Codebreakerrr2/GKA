@@ -127,7 +127,7 @@ public class MstAlgorithmen {
 
         // Create a map to track the parent of each node
         // Initially, each node is its own parent
-        // beacause each node is a tree
+        // because each node is a tree
         Map<String, String> parent = new HashMap<>();
         for (Node node : graph) {
             parent.put(node.getId(), node.getId());
@@ -138,7 +138,7 @@ public class MstAlgorithmen {
             String root1 = find(e.getNode0().getId(), parent);
             String root2 = find(e.getNode1().getId(), parent);
 
-            // If the two end nodes of the edge are in different trees, add the edge to the MST
+            // If the two end nodes of the edge are in different trees, add the edge to the MST otherwise it would create a cycle
             if (!root1.equals(root2)) {
                 // Ensure nodes exist in the graph before adding the edge
                 if (mst.getNode(e.getNode0().getId()) == null) {
@@ -166,15 +166,32 @@ public class MstAlgorithmen {
         return new Pair<>(mst, weight);
     }
 
-    // Find the root of the tree that the node belongs to
+    // Finds the root of the tree that the node belongs to
+    // If the node is the root of the tree, return the node
+    // Otherwise, recursively find the root of the parent of the node
+
+    /**
+     * Find the root of the tree that the node belongs to
+     * @param node The node to find the root of
+     * @param parent The parent of the node
+     * @return The root of the tree that the node belongs to
+     */
     private static String find(String node, Map<String, String> parent) {
+        // If the node is the root of the tree, return the node
         if (!parent.get(node).equals(node)) {
-            //path compression
+            // Otherwise, recursively find the root of the parent of the node
             parent.put(node, find(parent.get(node), parent));
+            // path compression -> reduces the time needed to find the root next time
         }
         return parent.get(node);
     }
-    // Merge two trees into one
+
+    /**
+     * // Merge two trees into one and make root2 the parent of root1
+     * @param root1 The root of the first tree
+     * @param root2 The root of the second tree
+     * @param parent map to track the parent of each node
+     */
     private static void union(String root1, String root2, Map<String, String> parent) {
         parent.put(root1, root2);
     }
