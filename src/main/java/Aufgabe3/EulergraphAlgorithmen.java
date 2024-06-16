@@ -44,60 +44,6 @@ public class EulergraphAlgorithmen {
         }
     }
 
-    public static List<Node> oddDegreeCounter(Graph inputGraph){
-        List<Node> oddDegreeNodes = new ArrayList<>();
-        for (Node n: inputGraph.nodes().toList()){
-            if (n.getDegree() % 2 == 1){
-                oddDegreeNodes.add(n);
-            }
-        }
-        return oddDegreeNodes;
-    }
-
-    public static Set<Node> fleury(Graph inputGraph) {
-            Graph newGraph = Graphs.clone(inputGraph);
-            Node currentNode = null;
-            List<Node> oddNode = oddDegreeCounter(newGraph);
-            System.out.println(oddNode.size());
-            if (oddNode.size() == 0){
-                System.out.println("Eulerkreis kann gefunden werden.");
-                currentNode = newGraph.getNode(0);
-            }else if (oddNode.size() == 2){
-                System.out.println("Eulerpfad kann gefunden werden, aber nicht Aufgabestellung");
-                return null;
-                //currentNode = oddNode.get(0);
-            }else {
-                System.out.println("Graph ist nicht geeignet für den Algorithmus");
-                return null;
-            }
-            Set<Node> circuit = new LinkedHashSet<>();
-            circuit.add(currentNode);
-            while (newGraph.edges().toList().size() != 0) {
-                if (circuit.size() == newGraph.nodes().toList().size()){
-                    return circuit;
-                }
-                for (Edge e: currentNode.edges().toList()){
-                    if (circuit.contains(e.getNode0()) && circuit.contains(e.getNode1())){
-                        continue;
-                    }else {
-                        if (circuit.contains(e.getNode0())){
-                            circuit.add(e.getNode1());
-                        }else {
-                            circuit.add(e.getNode0());
-                        }
-                    }
-                    if (isBridge(e.getNode0(), e.getNode1(), newGraph)){
-                        continue;
-                    }else {
-                        currentNode = e.getOpposite(currentNode);
-                        newGraph.removeEdge(e.getId());
-                        break;
-                    }
-                }
-            }
-            return circuit;
-    }
-
     /**
      * Hierholzer Algorithmus
      * @param graph Graph
@@ -206,6 +152,7 @@ public class EulergraphAlgorithmen {
         return eulerianCircuit;
     }
 
+
     private static Node findCommonNode(List<Edge> eulerianCircuit, List<Edge> currentCircle) {
         Set<Node> eulerianNodes = new HashSet<>();
         for (Edge edge : eulerianCircuit) {
@@ -225,15 +172,54 @@ public class EulergraphAlgorithmen {
         return null;
     }
 
+    public static Stack<Edge> fleury(Graph inputGraph) {
+        if (!eachNodeHasEvenDegree(inputGraph)) {
+            System.out.println("Graph does not have even degrees all over");
+            return null;
+        }
+
+        Graph newGraph = Graphs.clone(inputGraph);
+        Node currentNode = newGraph.getNode(0);
+        Edge currentEdge = null;
+        Stack<Edge> circuits = new Stack<>();
+
+        while (newGraph.edges().toList().size() != 0) {
+            List<Edge> edges = currentNode.edges().toList();
+            boolean edgeFound = false;
+
+            for (Edge e : edges) {
+                if (!disconnectsGraph(newGraph, e)) {
+                    currentEdge = e;
+                    circuits.push(currentEdge);
+                    newGraph.removeEdge(currentEdge.getId());
+                    currentNode = currentEdge.getOpposite(currentNode);
+                    edgeFound = true;
+                    break;
+                }
+            }
+
+            if (!edgeFound && !edges.isEmpty()) {
+                // Wenn keine nicht trennende Kante gefunden wurde, wähle die erste verbleibende Kante
+                currentEdge = edges.get(0);
+                circuits.push(currentEdge);
+                newGraph.removeEdge(currentEdge.getId());
+                currentNode = currentEdge.getOpposite(currentNode);
+            }
+        }
+
+        return circuits;
+    }
+
+
     public static void main(String[] args) throws IOException {
-            GraphGenerator.generateUndirectedWeightedGraph(5, 10, 10, "src/main/java/Aufgabe3/generatedGraphs/graph1");
-            Graph graph = readGraph("src/main/java/Aufgabe3/generatedGraphs/graph1");
-            Map<Integer, List<Edge>> d = hierholzer(graph);
-            System.out.println(d);
-            System.out.println(buildEulerianCircuit(d));
-
-
-        //System.setProperty("org.graphstream.ui", "swing");
-        //graph.display();
+        //GraphGenerator.generateUndirectedWeightedGraph(5, 10, 10, "src/main/java/Aufgabe3/generatedGraphs/graph1");
+        Graph graph = readGraph("src/main/java/Aufgabe3/generatedGraphs/graph1");
+        //Map<Integer, List<Edge>> d = hierholzer(graph);
+        //System.out.println(d);
+        //System.out.println(buildEulerianCircuit(d));
+        System.out.println(fleury(graph));
+        System.out.println(buildEulerianCircuit(hierholzer(graph)));
+        System.setProperty("org.graphstream.ui", "swing");
+        graph.display();
     }
 }
