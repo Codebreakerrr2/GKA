@@ -19,6 +19,12 @@ import static Aufgabe3.EulerianPathUtilities.isBridge;
 
 public class EulergraphAlgorithmen {
 
+    /**
+     * Überprüft, ob das Entfernen einer Kante den Graphen trennt
+     * @param graph Graph
+     * @param edge Kante
+     * @return boolean
+     */
     public static boolean disconnectsGraph(Graph graph, Edge edge) {
         Node node0 = edge.getNode0();
         Node node1 = edge.getNode1();
@@ -37,6 +43,12 @@ public class EulergraphAlgorithmen {
         return !visited.contains(node1);
     }
 
+    /**
+     * Überprüft, ob der Graph zusammenhängend ist
+     * @param node Startknoten
+     * @param visited Set<Node> besuchte Knoten
+     * @return boolean
+     */
     public static void dfs(Node node, Set<Node> visited) {
         visited.add(node);
         for (Edge edge : node.edges().toList()) {
@@ -71,19 +83,23 @@ public class EulergraphAlgorithmen {
                 circles.get(circleCounter).add(currEdge);
                 copy.removeEdge(currEdge.getIndex());
                 for (Edge e : circles.get(circleCounter)) {
+                    // Wenn der Knoten noch Kanten hat, die nicht besucht wurden
                     if (e.getNode0().getDegree() != 0) {
                         for (Edge edge : e.getNode0().edges().toList()) {
+                            // Wenn die Kante noch nicht besucht wurde, setze den aktuellen Knoten und die Kante
                             if (!visited.contains(edge)) {
                                 currNode = e.getNode0();
                                 currEdge = edge;
                                 visited.add(edge);
                             } else {
+                                // Wenn die Kante bereits besucht wurde, fahre fort uns suche weiter
                                 continue;
                             }
                             break;
                         }
                         break;
                     }
+                    // Wenn der Knoten 0 keine Kanten mehr hat, überprüfe Knoten 1
                     if (e.getNode1().getDegree() != 0) {
                         for (Edge edge : e.getNode1().edges().toList()) {
                             if (!visited.contains(edge)) {
@@ -117,6 +133,11 @@ public class EulergraphAlgorithmen {
         return circles;
     }
 
+    /**
+     * Erzeugt einen Eulerkreis aus einer Liste von Kreisen
+     * @param circles Map<Integer, List < Edge>> circles
+     * @return List<Edge> eulerianCircuit
+     */
     public static List<Edge> buildEulerianCircuit(Map<Integer, List<Edge>> circles) {
         if (circles == null || circles.isEmpty()) {
             return null; // Kein Eulerkreis möglich
@@ -157,6 +178,12 @@ public class EulergraphAlgorithmen {
     }
 
 
+    /**
+     * Findet einen gemeinsamen Knoten zwischen zwei Kreisen
+     * @param eulerianCircuit Eulerkreis
+     * @param currentCircle aktueller Kreis
+     * @return Node commonNode
+     */
     private static Node findCommonNode(List<Edge> eulerianCircuit, List<Edge> currentCircle) {
         Set<Node> eulerianNodes = new HashSet<>();
         for (Edge edge : eulerianCircuit) {
@@ -176,12 +203,17 @@ public class EulergraphAlgorithmen {
         return null;
     }
 
+    /**
+     * Fleury Algorithmus
+     * @param inputGraph Graph
+     * @return Stack<Edge> circuits
+     */
+
     public static Stack<Edge> fleury(Graph inputGraph) {
         if (!eachNodeHasEvenDegree(inputGraph)) {
             System.out.println("Graph does not have even degrees all over");
             return null;
         }
-
         Graph newGraph = Graphs.clone(inputGraph);
         Node currentNode = newGraph.getNode(0);
         Edge currentEdge = null;
@@ -213,6 +245,15 @@ public class EulergraphAlgorithmen {
 
         return circuits;
     }
+
+    /**
+     * Generates a random Eulerian graph with the given number of nodes and edges
+     * @param nodeNumber Number of nodes
+     * @param edgeNumber Number of edges
+     * @param weightRange Maximum weight for an edge
+     * @param path Path to write the graph to
+     * @throws IOException If an I/O error occurs
+     */
 
     public static void generateEulerianGraph(int nodeNumber, int edgeNumber, int weightRange, String path) throws IOException {
         if (nodeNumber < 0 || edgeNumber < 0 || weightRange < 0) {
@@ -320,17 +361,32 @@ public class EulergraphAlgorithmen {
 
     public static void main(String args[]) throws IOException {
         System.setProperty("org.graphstream.ui", "swing");
-        generateEulerianGraph(5,10 , 10, "src/main/java/Aufgabe3/eulerianGraph.txt");
-        for (int i = 0; i < 100; i++){
-            //generateSimpleEulerianGraph(8, 8, 10, "src/main/java/Aufgabe3/simpleEulerianGraph.txt");
-            Graph multiGraph = readGraph("src/main/java/Aufgabe3/eulerianGraph.txt");
-            Graph simpleGraph = readGraph("src/main/java/Aufgabe3/simpleEulerianGraph.txt");
-
-
-            // Verwenden eines MultiGraph anstelle eines SingleGraph
-            System.out.println(buildEulerianCircuit(hierholzer(multiGraph)));
-            System.out.println(fleury(multiGraph));
-        }
+        //generateEulerianGraph(5,10 , 10, "src/main/java/Aufgabe3/eulerianGraph.txt");
+        //for (int i = 0; i < 100; i++){
+        //    //generateSimpleEulerianGraph(8, 8, 10, "src/main/java/Aufgabe3/simpleEulerianGraph.txt");
+        //    Graph multiGraph = readGraph("src/main/java/Aufgabe3/eulerianGraph.txt");
+        //    Graph simpleGraph = readGraph("src/main/java/Aufgabe3/simpleEulerianGraph.txt");
+//
+//
+        //    // Verwenden eines MultiGraph anstelle eines SingleGraph
+        //    System.out.println(buildEulerianCircuit(hierholzer(multiGraph)));
+        //    System.out.println(fleury(multiGraph));
+        //}
         //multiGraph.display();
+
+        Graph graph = new MultiGraph("Euler Graph with Bridge");
+        for (int i = 1; i <= 8; i++) {
+            graph.addNode(String.valueOf(i));
+        }
+        graph.addEdge("a", "1", "2").setAttribute("ui.label", "a");
+        graph.addEdge("b", "2", "3").setAttribute("ui.label", "b");
+        graph.addEdge("c", "3", "4").setAttribute("ui.label", "c");
+        graph.addEdge("d", "4", "1").setAttribute("ui.label", "d");
+        graph.addEdge("e", "5", "6").setAttribute("ui.label", "e");
+        graph.addEdge("f", "6", "7").setAttribute("ui.label", "f");
+        graph.addEdge("g", "7", "8").setAttribute("ui.label", "g");
+        graph.addEdge("h", "8", "5").setAttribute("ui.label", "h");
+        //System.out.println(fleury(graph));
+        graph.display();
     }
 }
