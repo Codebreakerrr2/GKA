@@ -5,9 +5,10 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GraphTraversieren {
-/*    public static HashSet<Node> traverseGraph(Graph graph, String startNode) {
+    public static Boolean traverseGraph(Graph graph, String startNode) {
         Node node = graph.getNode(startNode);
         if (node == null) {
             throw new IllegalArgumentException("Node not found");
@@ -19,15 +20,14 @@ public class GraphTraversieren {
         while (!toVisit.isEmpty()) {
             Node currentNode = toVisit.poll();
             for (Node neighbor : currentNode.neighborNodes().collect(Collectors.toSet())) {
-                System.out.println("Current Node: " +currentNode + "\nNeighbors of current Node: " + currentNode.neighborNodes().toList() + "\nVisited Nodes: " + visited + "\n");
                 if (!visited.contains(neighbor)) {
                     toVisit.add(neighbor);
                     visited.add(neighbor);
                 }
             }
         }
-        return visited;
-    }*/
+        return visited.size() == graph.getNodeCount();
+    }
 
     /**
      * Eine Methode, um den kürzesten Pfad von einer Node zu einer anderen Node zu finden
