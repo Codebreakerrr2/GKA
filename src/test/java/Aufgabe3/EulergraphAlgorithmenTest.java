@@ -3,19 +3,17 @@ package Aufgabe3;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 
 import static Aufgabe1.GraphLesen.readGraph;
-import static Aufgabe3.EulergraphAlgorithmen.buildEulerianCircuit;
-import static Aufgabe3.EulergraphAlgorithmen.fleury;
+import static Aufgabe3.EulergraphAlgorithmen.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EulergraphAlgorithmenTest {
@@ -24,8 +22,7 @@ public class EulergraphAlgorithmenTest {
 
     @BeforeEach
     public void setUp() {
-        eulergraphAlgorithmen = new EulergraphAlgorithmen();
-        graph = new SingleGraph("Test Graph");
+        graph = new MultiGraph("Test Graph");
     }
 
     @Test
@@ -36,7 +33,7 @@ public class EulergraphAlgorithmenTest {
         graph.addEdge("AB", "A", "B");
         graph.addEdge("BC", "B", "C");
 
-        Stack<Edge> result = eulergraphAlgorithmen.fleury(graph);
+        Stack<Edge> result = fleury(graph);
 
         assertNull(result, "Fleury should return null when graph has nodes with odd degrees");
     }
@@ -50,9 +47,8 @@ public class EulergraphAlgorithmenTest {
         graph.addEdge("BC", "B", "C");
         graph.addEdge("CA", "C", "A");
 
-        Stack<Edge> result = eulergraphAlgorithmen.fleury(graph);
+        Stack<Edge> result = fleury(graph);
 
-        assertNotNull(result, "Fleury should not return null when graph has nodes with even degrees");
         assertEquals(3, result.size(), "Fleury should return a circuit with all edges when graph has nodes with even degrees");
     }
 
@@ -63,25 +59,18 @@ public class EulergraphAlgorithmenTest {
         graph.addNode("C");
         graph.addEdge("AB", "A", "B");
         graph.addEdge("BC", "B", "C");
-
-        Stack<Edge> result = (Stack<Edge>) eulergraphAlgorithmen.buildEulerianCircuit(eulergraphAlgorithmen.hierholzer(graph));
-
-        assertNull(result, "Fleury should return null when graph has nodes with odd degrees");
+        assertThrows(OddNodeDegreeException.class, () -> hierholzer(graph));
     }
 
     @Test
-    public void hierholzerReturnsCorrectCircuitWhenGraphHasEvenDegrees() {
+    public void hierholzerReturnsCorrectCircuitWhenGraphHasEvenDegrees() throws OddNodeDegreeException, DisconnectedGraphException {
         graph.addNode("A");
         graph.addNode("B");
         graph.addNode("C");
         graph.addEdge("AB", "A", "B");
         graph.addEdge("BC", "B", "C");
         graph.addEdge("CA", "C", "A");
-
-        List<Edge> result = eulergraphAlgorithmen.buildEulerianCircuit(eulergraphAlgorithmen.hierholzer(graph));
-
-        assertNotNull(result, "Fleury should not return null when graph has nodes with even degrees");
-        assertEquals(3, result.size(), "Fleury should return a circuit with all edges when graph has nodes with even degrees");
+        assertEquals(3, hierholzer(graph).size(), "Fleury should return a circuit with all edges when graph has nodes with even degrees");
     }
 
     @Test
@@ -91,10 +80,7 @@ public class EulergraphAlgorithmenTest {
         graph.addNode("C");
         graph.addEdge("AB", "A", "B");
         graph.addEdge("BC", "B", "C");
-
-        boolean result = eulergraphAlgorithmen.disconnectsGraph(graph, graph.getEdge("BC"));
-
-        assertTrue(result, "disconnectsGraph should return true when removal of the edge disconnects the graph");
+        assertTrue(disconnectsGraph(graph, graph.getEdge("BC")), "disconnectsGraph should return true when removal of the edge disconnects the graph");
     }
 
     @Test
@@ -105,16 +91,12 @@ public class EulergraphAlgorithmenTest {
         graph.addEdge("AB", "A", "B");
         graph.addEdge("BC", "B", "C");
         graph.addEdge("CA", "C", "A");
-
-        boolean result = eulergraphAlgorithmen.disconnectsGraph(graph, graph.getEdge("BC"));
-
-        assertFalse(result, "disconnectsGraph should return false when removal of the edge does not disconnect the graph");
+        assertFalse(disconnectsGraph(graph, graph.getEdge("BC")), "disconnectsGraph should return false when removal of the edge does not disconnect the graph");
     }
 
 
     @Test
     public void fleuryNichtZusammenhängenderGraph(){
-        Graph graph = new MultiGraph("Graph nicht zusammenhängend");
         for (int i = 1; i <= 8; i++) {
             graph.addNode(String.valueOf(i));
         }
@@ -132,8 +114,7 @@ public class EulergraphAlgorithmenTest {
 
 
     @Test
-    public void hierholzerNichtZusammenhängenderGraph(){
-        Graph graph = new MultiGraph("Graph nicht zusammenhängend");
+    public void hierholzerNichtZusammenhängenderGraph() {
         for (int i = 1; i <= 8; i++) {
             graph.addNode(String.valueOf(i));
         }
@@ -145,12 +126,11 @@ public class EulergraphAlgorithmenTest {
         graph.addEdge("f", "6", "7").setAttribute("ui.label", "f");
         graph.addEdge("g", "7", "8").setAttribute("ui.label", "g");
         graph.addEdge("h", "8", "5").setAttribute("ui.label", "h");
-        Assertions.assertNull(buildEulerianCircuit(EulergraphAlgorithmen.hierholzer(graph)));
+        Assertions.assertThrows(DisconnectedGraphException.class, () -> hierholzer(graph));
     }
 
     @Test
     public void fleuryEulergraph9NodesZusammenhängend(){
-        Graph graph = new MultiGraph("Graph");
         for (int i = 1; i <= 9; i++) {
             graph.addNode(String.valueOf(i));
         }
@@ -173,8 +153,7 @@ public class EulergraphAlgorithmenTest {
     }
 
     @Test
-    public void hierholzerEulergraph9NodesZusammenhängend(){
-        Graph graph = new MultiGraph("Graph");
+    public void hierholzerEulergraph9NodesZusammenhängend() throws OddNodeDegreeException, DisconnectedGraphException {
         for (int i = 1; i <= 9; i++) {
             graph.addNode(String.valueOf(i));
         }
@@ -193,8 +172,7 @@ public class EulergraphAlgorithmenTest {
         graph.addEdge("m", "3", "4").setAttribute("ui.label", "m");
         graph.addEdge("n", "3", "7").setAttribute("ui.label", "n");
         graph.addEdge("o", "1", "7").setAttribute("ui.label", "o");
-
-        Assertions.assertEquals(graph.edges().toList().size(), buildEulerianCircuit(EulergraphAlgorithmen.hierholzer(graph)).size());
+        Assertions.assertEquals(graph.edges().toList().size(), hierholzer(graph).size());
     }
 
     @Test
@@ -204,9 +182,9 @@ public class EulergraphAlgorithmenTest {
     }
 
     @Test
-    public void hierholzer5Nodes() throws IOException {
+    public void hierholzer5Nodes() throws IOException, OddNodeDegreeException, DisconnectedGraphException {
         Graph multiGraph = readGraph("src/main/java/Aufgabe3/generatedGraphs/testGraph1.txt");
-        Assertions.assertEquals(multiGraph.edges().toList().size(), buildEulerianCircuit(EulergraphAlgorithmen.hierholzer(multiGraph)).size());
+        Assertions.assertEquals(multiGraph.edges().toList().size(), hierholzer(multiGraph).size());
     }
 
 
@@ -217,21 +195,21 @@ public class EulergraphAlgorithmenTest {
     }
 
     @Test
-    public void hierholzer10Nodes44Kanten() throws IOException {
+    public void hierholzer10Nodes44Kanten() throws IOException, OddNodeDegreeException, DisconnectedGraphException {
         Graph multiGraph = readGraph("src/main/java/Aufgabe3/generatedGraphs/testGraph2.txt");
-        Assertions.assertEquals(multiGraph.edges().toList().size(), buildEulerianCircuit(EulergraphAlgorithmen.hierholzer(multiGraph)).size());
+        Assertions.assertEquals(multiGraph.edges().toList().size(), hierholzer(multiGraph).size());
     }
 
     @Test
     public void fleury20Nodes60Kanten() throws IOException {
         Graph multiGraph = readGraph("src/main/java/Aufgabe3/generatedGraphs/testGraph3.txt");
-        Assertions.assertEquals(multiGraph.edges().toList().size(), EulergraphAlgorithmen.fleury(multiGraph).size());
+        Assertions.assertEquals(multiGraph.edges().toList().size(), Objects.requireNonNull(fleury(multiGraph)).size());
     }
 
     @Test
-    public void hierholzer20Nodes60Kanten() throws IOException {
+    public void hierholzer20Nodes60Kanten() throws IOException, OddNodeDegreeException, DisconnectedGraphException {
         Graph multiGraph = readGraph("src/main/java/Aufgabe3/generatedGraphs/testGraph3.txt");
-        Assertions.assertEquals(multiGraph.edges().toList().size(), buildEulerianCircuit(EulergraphAlgorithmen.hierholzer(multiGraph)).size());
+        Assertions.assertEquals(multiGraph.edges().toList().size(), hierholzer(multiGraph).size());
     }
 
 
@@ -250,7 +228,7 @@ public class EulergraphAlgorithmenTest {
     }
 
     @Test
-    public void hierholzerEinfacherEulergraph(){
+    public void hierholzerEinfacherEulergraph() throws OddNodeDegreeException, DisconnectedGraphException {
         for (int i = 1; i <= 4; i++) {
             graph.addNode(String.valueOf(i));
         }
@@ -258,14 +236,13 @@ public class EulergraphAlgorithmenTest {
         graph.addEdge("b", "2", "3").setAttribute("ui.label", "b");
         graph.addEdge("c", "3", "4").setAttribute("ui.label", "c");
         graph.addEdge("d", "4", "1").setAttribute("ui.label", "d");
-        System.out.println(EulergraphAlgorithmen.hierholzer(graph));
-        Assertions.assertEquals(graph.edges().toList().size(), buildEulerianCircuit(EulergraphAlgorithmen.hierholzer(graph)).size());
+        List<Edge> path = hierholzer(graph);
+        Assertions.assertEquals(graph.edges().toList().get(0).getNode0().getId(), path.get(path.size()-1).getNode1().getId());
+
     }
 
     @Test
-    public void hierholzerEulergraphMitBruecken(){
-        Graph graph = new MultiGraph("Euler Graph with Bridge");
-
+    public void hierholzerEulergraphMitBruecken() throws OddNodeDegreeException, DisconnectedGraphException {
         graph.setAttribute("ui.stylesheet", "node {fill-color: red; size: 20px; text-alignment: at-right;} edge {fill-color: black;}");
         graph.setAttribute("ui.quality", true);
         graph.setAttribute("ui.antialias", true);
@@ -288,13 +265,11 @@ public class EulergraphAlgorithmenTest {
         graph.addEdge("HE", "H", "E");
         graph.addEdge("AE", "A", "E");
         graph.addEdge("EA", "E", "A");
-        Assertions.assertEquals(graph.edges().toList().size(), buildEulerianCircuit(EulergraphAlgorithmen.hierholzer(graph)).size());
+        Assertions.assertEquals(graph.edges().toList().size(), hierholzer(graph).size());
     }
 
     @Test
     public void fleuryEulergraphMitBruecken(){
-        Graph graph = new MultiGraph("Euler Graph with Bridge");
-
         graph.setAttribute("ui.stylesheet", "node {fill-color: red; size: 20px; text-alignment: at-right;} edge {fill-color: black;}");
         graph.setAttribute("ui.quality", true);
         graph.setAttribute("ui.antialias", true);
@@ -322,7 +297,6 @@ public class EulergraphAlgorithmenTest {
 
     @Test
     public void eachNodeHasEvenDegreeReturnsTrueWhenAllNodesHaveEvenDegree() {
-        Graph graph = new SingleGraph("Test Graph");
         graph.addNode("A");
         graph.addNode("B");
         graph.addNode("C");
@@ -331,46 +305,63 @@ public class EulergraphAlgorithmenTest {
         graph.addEdge("BC", "B", "C");
         graph.addEdge("CD", "C", "D");
         graph.addEdge("DA", "D", "A");
-
-        boolean result = EulerianPathUtilities.eachNodeHasEvenDegree(graph);
-
+        boolean result = eachNodeHasEvenDegree(graph);
         assertTrue(result, "eachNodeHasEvenDegree should return true when all nodes have even degree");
     }
 
     @Test
     public void eachNodeHasEvenDegreeReturnsFalseWhenNotAllNodesHaveEvenDegree(){
-        Graph graph = new SingleGraph("Test Graph");
         graph.addNode("A");
         graph.addNode("B");
         graph.addNode("C");
         graph.addEdge("AB", "A", "B");
-
-        boolean result = EulerianPathUtilities.eachNodeHasEvenDegree(graph);
-
+        boolean result = eachNodeHasEvenDegree(graph);
         assertFalse(result, "eachNodeHasEvenDegree should return false when not all nodes have even degree");
     }
 
     @Test
     public void eulerianGraphGeneratorProducesCorrectGraphs0() throws IOException {
         Graph graph = EulergraphAlgorithmen.generateEulerianGraph(6, 10, 10);
-        Assertions.assertTrue(EulerianPathUtilities.eachNodeHasEvenDegree(graph));
+        Assertions.assertTrue(eachNodeHasEvenDegree(graph));
     }
 
     @Test
     public void eulerianGraphGeneratorProducesCorrectGraphs1() throws IOException {
         Graph graph = EulergraphAlgorithmen.generateEulerianGraph(10, 40, 10);
-        Assertions.assertTrue(EulerianPathUtilities.eachNodeHasEvenDegree(graph));
+        Assertions.assertTrue(eachNodeHasEvenDegree(graph));
     }
 
     @Test
     public void eulerianGraphGeneratorProducesCorrectGraphs2() throws IOException {
         Graph graph = EulergraphAlgorithmen.generateEulerianGraph(20, 60, 10);
-        Assertions.assertTrue(EulerianPathUtilities.eachNodeHasEvenDegree(graph));
+        Assertions.assertTrue(eachNodeHasEvenDegree(graph));
     }
 
     @Test
     public void eulerianGraphGeneratorProducesCorrectGraphs3() throws IOException {
         Graph graph = EulergraphAlgorithmen.generateEulerianGraph(30, 80, 10);
-        Assertions.assertTrue(EulerianPathUtilities.eachNodeHasEvenDegree(graph));
+        Assertions.assertTrue(eachNodeHasEvenDegree(graph));
+    }
+
+    @Test
+    public void fleuryProducesCorrectPath() throws IOException {
+        for (int i = 0; i < 100 ; i++){
+            Graph graph = EulergraphAlgorithmen.generateEulerianGraph(100, 400, 10);
+            List<Edge> path = fleury(graph);
+            System.out.println(path.get(0));
+            System.out.println(path.get(path.size()-1));
+            Assertions.assertTrue(graph.edges().toList().get(0).getNode0().getId().equals(path.get(path.size()-1).getNode0().getId()) || graph.edges().toList().get(0).getNode0().getId().equals(path.get(path.size()-1).getNode1().getId()));
+        }
+    }
+
+    @Test
+    public void hierholzerProducesCorrectPath() throws IOException, OddNodeDegreeException, DisconnectedGraphException {
+        for (int i = 0; i < 100 ; i ++){
+            Graph graph = EulergraphAlgorithmen.generateEulerianGraph(1000, 4000, 10);
+            List<Edge> path = hierholzer(graph);
+            System.out.println(path.get(0));
+            System.out.println(path.get(path.size()-1));
+            Assertions.assertTrue(graph.edges().toList().get(0).getNode0().getId().equals(path.get(path.size()-1).getNode0().getId()) || graph.edges().toList().get(0).getNode0().getId().equals(path.get(path.size()-1).getNode1().getId()));
+        }
     }
 }

@@ -1,22 +1,17 @@
 package Aufgabe3;
 
 import Aufgabe1.GraphTraversieren;
-import Aufgabe1.Pair;
-import Aufgabe2.GraphGenerator;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.Graphs;
 import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.graph.implementations.SingleGraph;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
 import static Aufgabe1.GraphLesen.readGraph;
-import static Aufgabe3.EulerianPathUtilities.eachNodeHasEvenDegree;
-import static Aufgabe3.EulerianPathUtilities.isBridge;
 
 public class EulergraphAlgorithmen {
 
@@ -60,152 +55,19 @@ public class EulergraphAlgorithmen {
         }
     }
 
-    /**
-     * Hierholzer Algorithmus
-     *
-     * @param inputGraph Graph
-     * @return Map<Integer, List < Edge>> circles
-     */
-    public static Map<Integer, List<Edge>> hierholzer(Graph inputGraph) {
-        if (!GraphTraversieren.traverseGraph(inputGraph, inputGraph.getNode(0).getId())) {
-            System.out.println("Graph is not connected");
-            return null;
-        }
-        if (!eachNodeHasEvenDegree(inputGraph)) {
-            return null;
-        }
-        Graph newGraph = Graphs.clone(inputGraph);
-        int circleCounter = 0;
-        Map<Integer, List<Edge>> circles = new HashMap<>();
-        Set<Edge> visited = new HashSet<>();
-        circles.put(circleCounter, new ArrayList<>());
-        Node startNode = newGraph.getNode(0);
-        Node currNode = newGraph.getNode(0);
-        Edge currEdge = currNode.leavingEdges().toList().get(0);
-        visited.add(currEdge);
-        while (newGraph.edges().toList().size() != 0) {
-            if (currEdge.getOpposite(currNode) == startNode) {
-                circles.get(circleCounter).add(currEdge);
-                newGraph.removeEdge(currEdge.getIndex());
-                for (Edge e : circles.get(circleCounter)) {
-                    // Wenn der Knoten noch Kanten hat, die nicht besucht wurden
-                    if (e.getNode0().getDegree() != 0) {
-                        for (Edge edge : e.getNode0().edges().toList()) {
-                            // Wenn die Kante noch nicht besucht wurde, setze den aktuellen Knoten und die Kante
-                            if (!visited.contains(edge)) {
-                                currNode = e.getNode0();
-                                currEdge = edge;
-                                visited.add(edge);
-                            } else {
-                                // Wenn die Kante bereits besucht wurde, fahre fort uns suche weiter
-                                continue;
-                            }
-                            break;
-                        }
-                        break;
-                    }
-                    // Wenn der Knoten 0 keine Kanten mehr hat, überprüfe Knoten 1
-                    if (e.getNode1().getDegree() != 0) {
-                        for (Edge edge : e.getNode1().edges().toList()) {
-                            if (!visited.contains(edge)) {
-                                currNode = e.getNode1();
-                                currEdge = edge;
-                                visited.add(edge);
-                            } else {
-                                continue;
-                            }
-                            break;
-                        }
-                    }
-                }
-                if (visited.size() != inputGraph.edges().toList().size()) {
-                    circleCounter++;
-                    circles.put(circleCounter, new ArrayList<>());
-                }
-            } else {
-                circles.get(circleCounter).add(currEdge);
-                currNode = currEdge.getOpposite(currNode);
-                newGraph.removeEdge(currEdge);
-                if (!currNode.edges().toList().isEmpty()) {
-                    if (!visited.contains(currNode.leavingEdges().toList().get(0))) {
-                        currEdge = currNode.leavingEdges().toList().get(0);
-                        visited.add(currEdge);
-                    }
-                }
-            }
-        }
-
-        return circles;
-    }
 
     /**
-     * Erzeugt einen Eulerkreis aus einer Liste von Kreisen
-     * @param circles Map<Integer, List < Edge>> circles
-     * @return List<Edge> eulerianCircuit
+     * Überprüft, ob jeder Knoten im Graphen einen geraden Grad hat
+     * @param graph Graph
+     * @return boolean
      */
-    public static List<Edge> buildEulerianCircuit(Map<Integer, List<Edge>> circles) {
-        if (circles == null || circles.isEmpty()) {
-            return null; // Kein Eulerkreis möglich
-        }
-
-        List<Edge> eulerianCircuit = new ArrayList<>();
-
-        // Starten mit dem ersten Kreis
-        List<Edge> firstCircle = circles.get(0);
-        eulerianCircuit.addAll(firstCircle);
-
-        for (int i = 1; i < circles.size(); i++) {
-            List<Edge> currentCircle = circles.get(i);
-
-            // Finde einen Knoten, der im aktuellen Eulerkreis und im neuen Kreis existiert
-            Node commonNode = findCommonNode(eulerianCircuit, currentCircle);
-
-            if (commonNode != null) {
-                // Zerlege den Eulerkreis an der Stelle des gemeinsamen Knotens
-                List<Edge> tempCircuit = new ArrayList<>();
-                boolean inserted = false;
-                for (Edge edge : eulerianCircuit) {
-                    tempCircuit.add(edge);
-                    if (!inserted && (edge.getNode0().equals(commonNode) || edge.getNode1().equals(commonNode))) {
-                        // Füge den aktuellen Kreis in den Eulerkreis ein
-                        tempCircuit.addAll(currentCircle);
-                        inserted = true;
-                    }
-                }
-                eulerianCircuit = tempCircuit;
-            } else {
-                // Falls kein gemeinsamer Knoten gefunden wurde, etwas stimmt nicht
-                return null;
+    public static boolean eachNodeHasEvenDegree(Graph graph) {
+        for (Node node : graph) {
+            if ((node.getDegree()) % 2 != 0) {
+                return false;
             }
         }
-
-        return eulerianCircuit;
-    }
-
-
-    /**
-     * Findet einen gemeinsamen Knoten zwischen zwei Kreisen
-     * @param eulerianCircuit Eulerkreis
-     * @param currentCircle aktueller Kreis
-     * @return Node commonNode
-     */
-    private static Node findCommonNode(List<Edge> eulerianCircuit, List<Edge> currentCircle) {
-        Set<Node> eulerianNodes = new HashSet<>();
-        for (Edge edge : eulerianCircuit) {
-            eulerianNodes.add(edge.getNode0());
-            eulerianNodes.add(edge.getNode1());
-        }
-
-        for (Edge edge : currentCircle) {
-            if (eulerianNodes.contains(edge.getNode0())) {
-                return edge.getNode0();
-            }
-            if (eulerianNodes.contains(edge.getNode1())) {
-                return edge.getNode1();
-            }
-        }
-
-        return null;
+        return true;
     }
 
     /**
@@ -273,7 +135,7 @@ public class EulergraphAlgorithmen {
         Set<String> edges = new HashSet<>();
         Graph graph = new MultiGraph("Eulerian Graph");
 
-        // Create all nodes first and add them to the file
+        // Create all nodes first and add them to the Graph
         List<Integer> nodes = new ArrayList<>();
         for (int i = 0; i < nodeNumber; i++) {
             nodes.add(i);
@@ -312,7 +174,7 @@ public class EulergraphAlgorithmen {
         return graph;
     }
 
-    public static Graph generateEulerianGraph2(int nodeNumber, int edgeNumber, int weightRange, String path) throws IOException {
+    public static Graph generateEulerianGraphWithFileOutput(int nodeNumber, int edgeNumber, int weightRange, String path) throws IOException {
         if (nodeNumber < 0 || edgeNumber < 0 || weightRange < 0) {
             throw new IllegalArgumentException("Invalid input");
         }
@@ -368,31 +230,55 @@ public class EulergraphAlgorithmen {
         return graph;
     }
 
-    public static void main(String args[]) throws IOException {
-        System.setProperty("org.graphstream.ui", "swing");
-        //generateEulerianGraph(20, 60 , 10, "src/main/java/Aufgabe3/generatedGraphs/testGraph3.txt");
-        //GraphGenerator.generateUndirectedWeightedGraph(10, 45, 10, "src/main/java/Aufgabe3/generatedGraphs/testGraph2.txt");
-            //generateSimpleEulerianGraph(8, 8, 10, "src/main/java/Aufgabe3/simpleEulerianGraph.txt");
-        Graph multiGraph = readGraph("src/main/java/Aufgabe3/generatedGraphs/testGraph3.txt");
-        System.out.println(multiGraph.edges().toList().size());
+    public static List<Edge> hierholzer(Graph inputGraph) throws DisconnectedGraphException, OddNodeDegreeException {
+        // Any node can be the start node
+        Node current = inputGraph.getNode(0);
+        // Check if the graph is connected
+        if (!GraphTraversieren.traverseGraph(inputGraph, current.getId())) {
+            throw new DisconnectedGraphException("Graph is not connected");
+        }
+        // Check if all nodes have even degree
+        if (!eachNodeHasEvenDegree(inputGraph)) {
+            throw new OddNodeDegreeException("Graph does not have even degrees all over");
+        }
+        // A stack to store the nodes
+        Stack<Node> stack = new Stack<>();
 
-            // Verwenden eines MultiGraph anstelle eines SingleGraph
-        System.out.println(buildEulerianCircuit(hierholzer(multiGraph)));
-        System.out.println(fleury(multiGraph));
+        // A list to store the circuit
+        List<Edge> circuit = new ArrayList<>();
 
-        //Graph graph = new MultiGraph("Euler Graph with Bridge");
-        //for (int i = 1; i <= 8; i++) {
-        //    graph.addNode(String.valueOf(i));
-        //}
-        //graph.addEdge("a", "1", "2").setAttribute("ui.label", "a");
-        //graph.addEdge("b", "2", "3").setAttribute("ui.label", "b");
-        //graph.addEdge("c", "3", "4").setAttribute("ui.label", "c");
-        //graph.addEdge("d", "4", "1").setAttribute("ui.label", "d");
-        //graph.addEdge("e", "5", "6").setAttribute("ui.label", "e");
-        //graph.addEdge("f", "6", "7").setAttribute("ui.label", "f");
-        //graph.addEdge("g", "7", "8").setAttribute("ui.label", "g");
-        //graph.addEdge("h", "8", "5").setAttribute("ui.label", "h");
-        //System.out.println(fleury(graph));
-        multiGraph.display();
+        // Add the startNode to the stack
+        stack.push(current);
+
+        // While the stack is not empty
+        while (!stack.isEmpty()) {
+            // Get the current node from the stack
+            current = stack.peek();
+
+            // Get all edges of the current node
+            Iterator<Edge> edges = current.leavingEdges().iterator();
+
+            // Iterate over all edges of the current node
+            while (edges.hasNext()) {
+                Edge edge = edges.next();
+                // If the edge has not been visited, mark it as visited and add the opposite node to the stack
+                if (!edge.hasAttribute("visited")) {
+                    edge.setAttribute("visited", true);
+                    stack.push(edge.getOpposite(current));
+                    break;
+                }
+            }
+
+            // If no more edges are unvisited, pop the node from the stack and add the edge to the circuit
+            if (current == stack.peek()) {
+                stack.pop();
+                // Add the edge to the circuit if the stack is not empty
+                if (!stack.isEmpty()) {
+                    circuit.add(current.getEdgeBetween(stack.peek()));
+                }
+            }
+        }
+        Collections.reverse(circuit);
+        return circuit.isEmpty() ? null : circuit;
     }
 }
