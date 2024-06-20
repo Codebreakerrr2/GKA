@@ -1,90 +1,167 @@
 package Aufgabe3;
 
 import Aufgabe1.GraphTraversieren;
+import Aufgabe3.DisconnectedGraphException;
+import Aufgabe3.OddNodeDegreeException;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.Path;
-import org.graphstream.graph.implementations.Graphs;
 
-import java.io.IOException;
-import java.util.Stack;
+import java.util.*;
 
 import static Aufgabe3.EulergraphAlgorithmen.eachNodeHasEvenDegree;
 
 public class Hierholzer {
+    Graph inputGraph;
+    Node currNode;
+    Node startNode;
+    Edge currEdge;
+    Set<Edge> visitedEdges;
+    Set<Node> visitedNodes;
+    Map<Integer, List<Edge>> circles;
+    List<Edge> currentCircle;
 
-        private final Graph graph;
-        private final Graph inputGraph;
-        private final Path path;
-        private Node startNode;
-        private final Stack<Node> stack;
+    public Hierholzer(Graph inputGraph) {
+        this.inputGraph = inputGraph;
+        this.visitedEdges = new HashSet<>();
+        this.circles = new HashMap<>();
+        this.currentCircle = new ArrayList<>();
+        this.visitedNodes = new HashSet<>();
+    }
 
-        public Hierholzer(Graph inputGraph) {
-            this.graph = Graphs.clone(inputGraph);
-            this.inputGraph = inputGraph;
-            this.startNode = this.graph.getNode(0);
-            this.stack = new Stack<>();
-            this.path = new Path();
+    public Map<Integer, List<Edge>> hierholzer(Graph inputGraph) throws DisconnectedGraphException, OddNodeDegreeException {
+        if (!GraphTraversieren.traverseGraph(inputGraph, inputGraph.getNode(0).getId())) {
+            throw new DisconnectedGraphException("Der Graph ist nicht zusammenhängend.");
+        }
+        if (!eachNodeHasEvenDegree(inputGraph)) {
+            throw new OddNodeDegreeException("Der Graph hat mindestens einen Knoten mit ungeradem Grad.");
         }
 
-        /**
-         * Computes a eulerian path by finding all cycles within a given graph
-         * @param node -> currently observed Node
-         */
-        private void compute(Node node) {
-            if (this.stack.isEmpty()) return;
+        int circleCounter = 0;
+        this.circles.put(circleCounter, new ArrayList<>());
+        this.currNode = inputGraph.getNode(0);
+        this.visitedNodes.add(currNode);
 
-            Node neighborNode = node.neighborNodes().findFirst().orElse(null);
-            this.stack.add(neighborNode);
-            Edge edge = node.getEdgeBetween(neighborNode);
-            this.graph.removeEdge(edge);
-            // Push the startNode onto the stack if it is a neighbor of neighborNode.
-            // In this case the current cycle will be closed and the next node of the stack
-            // will be the startNode of the next cycle to explore
-            if (neighborNode.neighborNodes().anyMatch(n -> n.equals(this.startNode))) {
-                this.stack.add(this.startNode);
-                graph.removeEdge(neighborNode.getEdgeBetween(this.startNode));
-                addToPath();
-                this.startNode = this.stack.peek();
-                if (this.graph.getEdgeCount() > 0) compute(this.startNode);
+        while (visitedEdges.size() < inputGraph.edges().toList().size()) {
+            this.currEdge = findUnvisitedEdge(this.currNode, this.visitedEdges);
+            if (currEdge != null) {
+                this.circles.get(circleCounter).add(currEdge);
+                this.visitedEdges.add(currEdge);
+                this.currNode = currEdge.getOpposite(this.currNode);
+                this.visitedNodes.add(this.currNode);
             } else {
-                compute(neighborNode);
+                // No unvisited edges found, start a new cycle
+                Edge unvisitedEdge = findUnvisitedGlobalEdge(this.circles, this.visitedEdges);
+                if (unvisitedEdge == null) break; // No unvisited edges left, end process
+                this.currEdge = unvisitedEdge;
+                this.visitedEdges.add(this.currEdge);
+                this.currentCircle = new ArrayList<>();
+                this.circles.put(++circleCounter, this.currentCircle);
+                this.currentCircle.add(this.currEdge);
+                this.currNode = this.currEdge.getOpposite(this.currNode);
+                this.visitedNodes.add(this.currNode);
             }
         }
 
-        /**
-         * Removes all nodes having degree 0 and adds the edge between the
-         * respective Node and the upper Node to the path.
-         */
-        private void addToPath() {
-            while (this.stack.peek().getDegree() == 0 && this.stack.size() > 1) {
-                Node node0 = this.inputGraph.getNode(this.stack.pop().getId());
-                Node node1 = this.inputGraph.getNode(this.stack.peek().getId());
-                this.path.add(node0.getEdgeBetween(node1));
+        return this.circles;
+    }
+
+    private static Edge findUnvisitedEdge(Node node, Set<Edge> visited) {
+        for (Edge edge : node.edges().toList()) {
+            if (!visited.contains(edge)) {
+                return edge;
+            }
+        }
+        return null;
+    }
+
+    private Edge findUnvisitedGlobalEdge(Map<Integer, List<Edge>> map, Set<Edge> visited) {
+        for (Map.Entry<Integer, List<Edge>> entry : map.entrySet()) {
+            for (Edge edge : entry.getValue()) {
+                for (Edge e : edge.getNode0().edges().toList()) {
+                    if (!visited.contains(e)) {
+                        if (visitedNodes.contains(e.getNode0())) {
+                            this.currNode = e.getNode0();
+                            return e;
+                        }
+                        if (visitedNodes.contains(e.getNode1())) {
+                            this.currNode = e.getNode1();
+                            return e;
+                        }
+                    }
+                }
+                for (Edge e : edge.getNode1().edges().toList()) {
+                    if (!visited.contains(e)) {
+                        if (visitedNodes.contains(e.getNode0())) {
+                            this.currNode = e.getNode0();
+                            return e;
+                        }
+                        if (visitedNodes.contains(e.getNode1())) {
+                            this.currNode = e.getNode1();
+                            return e;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<Edge> buildEulerianCircuit(Map<Integer, List<Edge>> circles) {
+        if (circles == null || circles.isEmpty()) {
+            return null; // Kein Eulerkreis möglich
+        }
+
+        List<Edge> eulerianCircuit = new ArrayList<>();
+
+        // Starten mit dem ersten Kreis
+        List<Edge> firstCircle = circles.get(0);
+        eulerianCircuit.addAll(firstCircle);
+
+        for (int i = 1; i < circles.size(); i++) {
+            List<Edge> currentCircle = circles.get(i);
+
+            // Finde einen Knoten, der im aktuellen Eulerkreis und im neuen Kreis existiert
+            Node commonNode = findCommonNode(eulerianCircuit, currentCircle);
+
+            if (commonNode != null) {
+                // Zerlege den Eulerkreis an der Stelle des gemeinsamen Knotens
+                List<Edge> tempCircuit = new ArrayList<>();
+                boolean inserted = false;
+                for (Edge edge : eulerianCircuit) {
+                    tempCircuit.add(edge);
+                    if (!inserted && (edge.getNode0().equals(commonNode) || edge.getNode1().equals(commonNode))) {
+                        // Füge den aktuellen Kreis in den Eulerkreis ein
+                        tempCircuit.addAll(currentCircle);
+                        inserted = true;
+                    }
+                }
+                eulerianCircuit = tempCircuit;
+            } else {
+                // Falls kein gemeinsamer Knoten gefunden wurde, etwas stimmt nicht
+                return null;
             }
         }
 
-        public void compute() throws DisconnectedGraphException, OddNodeDegreeException {
-            if (!GraphTraversieren.traverseGraph(this.graph, String.valueOf(graph.getNode(0))))
-                throw new DisconnectedGraphException("The passed graph must be connected");
-            if (!eachNodeHasEvenDegree(this.graph))
-                throw new OddNodeDegreeException("Each node of the graph must have an even edge degree");
-
-            this.stack.add(this.startNode);
-            this.path.setRoot(this.inputGraph.getNode(this.startNode.getId()));
-            compute(this.startNode);
-        }
-
-        public Path getPath() {
-            return this.path;
-        }
-
-    public static void main(String[] args) throws IOException, OddNodeDegreeException, DisconnectedGraphException {
-        Graph graph = EulergraphAlgorithmen.generateEulerianGraph(1000, 1000, 10);
-        Hierholzer hierholzer = new Hierholzer(graph);
-        hierholzer.compute();
-        System.out.println(hierholzer.getPath());
-    }
+        return eulerianCircuit;
     }
 
+    private Node findCommonNode(List<Edge> eulerianCircuit, List<Edge> currentCircle) {
+        Set<Node> eulerianNodes = new HashSet<>();
+        for (Edge edge : eulerianCircuit) {
+            eulerianNodes.add(edge.getNode0());
+            eulerianNodes.add(edge.getNode1());
+        }
+
+        for (Edge edge : currentCircle) {
+            if (eulerianNodes.contains(edge.getNode0())) {
+                return edge.getNode0();
+            }
+            if (eulerianNodes.contains(edge.getNode1())) {
+                return edge.getNode1();
+            }
+        }
+
+        return null;
+    }
+}

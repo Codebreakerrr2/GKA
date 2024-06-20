@@ -87,7 +87,7 @@ public class EulergraphAlgorithmen {
         }
         Graph newGraph = Graphs.clone(inputGraph);
         Node currentNode = newGraph.getNode(0);
-        Edge currentEdge = null;
+        Edge currentEdge;
         Stack<Edge> circuits = new Stack<>();
 
         while (newGraph.edges().toList().size() != 0) {
@@ -280,5 +280,36 @@ public class EulergraphAlgorithmen {
         }
         Collections.reverse(circuit);
         return circuit.isEmpty() ? null : circuit;
+    }
+
+    public static void main(String[] args) throws IOException {
+        Graph graph = new MultiGraph("Eulerian Graph");
+        for (int i = 1; i <= 13; i++) {
+            graph.addNode(String.valueOf(i));
+            graph.getNode(String.valueOf(i)).setAttribute("ui.label", i);
+        }
+        graph.addEdge("a", "1", "2").setAttribute("ui.label", "1 - 2 (a)");
+        graph.addEdge("b", "2", "3").setAttribute("ui.label", "2 - 3 (b)");
+        graph.addEdge("c", "3", "4").setAttribute("ui.label", "3 - 4 (c)");
+        graph.addEdge("d", "4", "1").setAttribute("ui.label", "4 - 1 (d)");
+
+        graph.addEdge("e", "4", "5").setAttribute("ui.label", "4 - 5 (e)");
+        graph.addEdge("f", "5", "6").setAttribute("ui.label", "5 - 6 (f)");
+        graph.addEdge("g", "6", "7").setAttribute("ui.label", "6 - 7 (g)");
+        graph.addEdge("h", "7", "4").setAttribute("ui.label", "7 - 4 (h)");
+
+        graph.addEdge("i", "7", "8").setAttribute("ui.label", "7 - 8 (i)");
+        graph.addEdge("j", "8", "9").setAttribute("ui.label", "8 - 9 (j)");
+        graph.addEdge("k", "9", "10").setAttribute("ui.label", "9 - 10 (k)");
+        graph.addEdge("l", "10", "7").setAttribute("ui.label", "10 - 7 (l)");
+
+        graph.addEdge("m", "7", "11").setAttribute("ui.label", "7 - 11 (m)");
+        graph.addEdge("n", "11", "12").setAttribute("ui.label", "11 - 12 (n)");
+        graph.addEdge("o", "12", "13").setAttribute("ui.label", "12 - 13 (o)");
+        graph.addEdge("p", "13", "7").setAttribute("ui.label", "13 - 7 (p)");
+        //EulergraphAlgorithmen.generateEulerianGraphWithFileOutput(1000, 4000, 10, "src/main/java/Aufgabe3/generatedGraphs/graph.txt");
+        //Graph graph = readGraph("src/main/java/Aufgabe3/generatedGraphs/graph.txt");
+        System.setProperty("org.graphstream.ui", "swing");
+        graph.display();
     }
 }
